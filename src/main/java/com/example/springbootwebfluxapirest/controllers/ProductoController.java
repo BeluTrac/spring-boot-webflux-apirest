@@ -2,19 +2,21 @@ package com.example.springbootwebfluxapirest.controllers;
 
 import com.example.springbootwebfluxapirest.models.documents.Producto;
 import com.example.springbootwebfluxapirest.models.services.ProductoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.support.WebExchangeBindException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
 import java.net.URI;
-import java.util.Date;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/productos")
@@ -38,7 +40,7 @@ public class ProductoController {
                 .defaultIfEmpty(ResponseEntity.notFound().build());
     }
 
-    private String replaceInvalidCharacters(String string){
+    private String replaceInvalidCharacters(String string) {
         return string.replaceAll("[:\\\\ ]", "");
     }
 
@@ -56,18 +58,35 @@ public class ProductoController {
     }
 
     @PostMapping()
-    public Mono<ResponseEntity<Producto>> createProduct(@RequestBody Producto producto) {
-        if (producto.getCreateAt() == null) {
-            producto.setCreateAt(new Date());
-        }
-        return service.save(producto).map(p -> ResponseEntity
-                .created(URI.create("api/productos/".concat(p.getId())))
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(p));
+    public Mono<ResponseEntity<Map<String, Object>>> createProduct(@RequestBody @Valid Mono<Producto> monoProducto) {
+        Map<String, Object> response = new HashMap<>();
+        return monoProducto.flatMap(producto -> {
+            if (producto.getCreateAt() == null) {
+                producto.setCreateAt(new Date());
+            }
+            return service.save(producto).map(p -> {
+                response.put("Producto", p);
+                response.put("Mensaje", "Producto creado con exito");
+                response.put("Timestamp", LocalDate.now());
+                return ResponseEntity
+                        .created(URI.create("api/productos/".concat(p.getId())))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(response);
+            });
+        }).onErrorResume(t -> Mono.just(t).cast(WebExchangeBindException.class)
+                .flatMap(e -> Mono.just(e.getFieldErrors()))
+                .flatMapMany(Flux::fromIterable)
+                .map(fieldError -> "El campo " + fieldError.getField() + " " + fieldError.getDefaultMessage())
+                .collectList()
+                .flatMap(list -> {
+                    response.put("Errors", list);
+                    response.put("Timestamp", LocalDate.now());
+                    return Mono.just(ResponseEntity.badRequest().body(response));
+                }));
     }
 
     @PostMapping("/v2")
-    public Mono<ResponseEntity<Producto>> createProductWithPhoto(Producto producto, @RequestPart FilePart file) {
+    public Mono<ResponseEntity<Producto>> createProductWithPhoto(@Valid Producto producto, @RequestPart FilePart file) {
         if (producto.getCreateAt() == null) {
             producto.setCreateAt(new Date());
         }
@@ -81,7 +100,7 @@ public class ProductoController {
     }
 
     @PutMapping("{id}")
-    public Mono<ResponseEntity<Producto>> updateProduct(@RequestBody Producto product, @PathVariable String id) {
+    public Mono<ResponseEntity<Producto>> updateProduct(@RequestBody @Valid Producto product, @PathVariable String id) {
         return service.findById(id).flatMap(p -> {
                     p.setNombre(product.getNombre());
                     p.setPrecio(product.getPrecio());
