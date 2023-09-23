@@ -2,9 +2,7 @@ package com.example.springbootwebfluxapirest.controllers;
 
 import com.example.springbootwebfluxapirest.models.documents.Producto;
 import com.example.springbootwebfluxapirest.models.services.ProductoService;
-import lombok.val;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +11,6 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.Date;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/productos")
