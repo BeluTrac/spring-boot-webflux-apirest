@@ -42,9 +42,8 @@ public class SpringBootWebfluxApirestApplication implements CommandLineRunner {
 
 		Flux.just(electronico, deporte, computacion, muebles)
 				.flatMap(service::saveCategoria)
-				.doOnNext(c ->{
-					log.info("Categoria creada: " + c.getNombre() + ", Id: " + c.getId());
-				}).thenMany(
+				.doOnNext(c -> log.info("Categoria creada: " + c.getNombre() + ", Id: " + c.getId()))
+				.thenMany(
 						Flux.just(new Producto("TV Panasonic Pantalla LCD", 456.89, electronico),
 										new Producto("Sony Camara HD Digital", 177.89, electronico),
 										new Producto("Apple iPod", 46.89, electronico),

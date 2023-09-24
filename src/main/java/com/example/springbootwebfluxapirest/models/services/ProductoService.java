@@ -7,22 +7,21 @@ import reactor.core.publisher.Mono;
 
 public interface ProductoService {
 	
-	public Flux<Producto> findAll();
+	Flux<Producto> findAll();
 	
-	public Flux<Producto> findAllConNombreUpperCase();
+	Flux<Producto> findAllConNombreUpperCase();
 	
-	public Flux<Producto> findAllConNombreUpperCaseRepeat();
+	Flux<Producto> findAllConNombreUpperCaseRepeat();
 	
-	public Mono<Producto> findById(String id);
+	Mono<Producto> findById(String id);
 	
-	public Mono<Producto> save(Producto producto);
+	Mono<Producto> save(Producto producto);
 	
-	public Mono<Void> delete(Producto producto);
+	Mono<Void> delete(Producto producto);
 	
-	public Flux<Categoria> findAllCategoria();
+	Flux<Categoria> findAllCategoria();
 	
-	public Mono<Categoria> findCategoriaById(String id);
+	Mono<Categoria> findCategoriaById(String id);
 	
-	public Mono<Categoria> saveCategoria(Categoria categoria);
-
+	Mono<Categoria> saveCategoria(Categoria categoria);
 }

@@ -33,7 +33,7 @@ public class ProductoController {
     @PostMapping("/upload/{id}")
     public Mono<ResponseEntity<Producto>> uploadPhoto(@PathVariable String id, @RequestPart FilePart file) {
         return service.findById(id).flatMap(p -> {
-                    p.setFoto(UUID.randomUUID().toString() + "-" + replaceInvalidCharacters(file.filename()));
+                    p.setFoto(UUID.randomUUID()+ "-" + replaceInvalidCharacters(file.filename()));
                     return file.transferTo(new File(path + p.getFoto()))
                             .then(service.save(p));
                 }).map(p -> ResponseEntity.ok().body(p))
