@@ -30,7 +30,7 @@ public class SpringBootWebfluxApirestApplication implements CommandLineRunner {
 	}
 
 	@Override
-	public void run(String... args) throws Exception {
+	public void run(String... args) {
 
 		mongoTemplate.dropCollection("productos").subscribe();
 		mongoTemplate.dropCollection("categorias").subscribe();
